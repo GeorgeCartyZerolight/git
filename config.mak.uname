@@ -433,6 +433,8 @@ ifeq ($(uname_S),Windows)
 	NO_POSIX_GOODIES = UnfortunatelyYes
 	NATIVE_CRLF = YesPlease
 	DEFAULT_HELP_FORMAT = html
+	NO_DEFLATE_BOUND = YesPlease
+	# the zlib.c deflateBound, compiled for windows, is limited to uLong 32bit sourceLen.
 ifeq (/mingw64,$(subst 32,64,$(prefix)))
 	# Move system config into top-level /etc/
 	ETC_GITCONFIG = ../etc/gitconfig
