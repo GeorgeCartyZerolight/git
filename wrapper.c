@@ -690,3 +690,18 @@ int xgethostname(char *buf, size_t len)
 		buf[len - 1] = 0;
 	return ret;
 }
+uLong xcrc32(uLong crc, const unsigned char *buf, size_t bytes)
+{
+	size_t bytes_rem, off;
+	bytes_rem = bytes;
+	off = 0;
+	while (bytes_rem) {
+		int crc_bytes = maximum_signed_value_of_type(int);
+		if (crc_bytes > bytes_rem)
+			crc_bytes = bytes_rem;
+		crc = crc32(crc, buf + off, crc_bytes);
+		off += crc_bytes;
+		bytes_rem -= crc_bytes;
+	}
+	return crc;
+}

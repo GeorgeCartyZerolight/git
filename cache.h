@@ -1789,4 +1789,10 @@ void safe_create_dir(const char *dir, int share);
  */
 extern int print_sha1_ellipsis(void);
 
+/*
+ * Extended crc32 with 64 bit address range
+ * On Windows, uInt/uLong are only 32 bits.
+ */
+extern uLong xcrc32(uLong crc, const unsigned char *buf, size_t bytes);
+
 #endif /* CACHE_H */
