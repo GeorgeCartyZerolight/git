@@ -634,7 +634,7 @@ static int verify_ordered(unsigned mode1, const char *name1,
 }
 
 static int fsck_tree(const struct object_id *oid,
-		     const char *buffer, unsigned long size,
+		     const char *buffer, size_t size,
 		     struct fsck_options *options)
 {
 	int retval = 0;
@@ -773,19 +773,19 @@ static int fsck_tree(const struct object_id *oid,
 	return retval;
 }
 
-static int verify_headers(const void *data, unsigned long size,
+static int verify_headers(const void *data, size_t size,
 			  const struct object_id *oid, enum object_type type,
 			  struct fsck_options *options)
 {
 	const char *buffer = (const char *)data;
-	unsigned long i;
+	size_t i;
 
 	for (i = 0; i < size; i++) {
 		switch (buffer[i]) {
 		case '\0':
 			return report(options, oid, type,
 				FSCK_MSG_NUL_IN_HEADER,
-				"unterminated header: NUL at offset %ld", i);
+				"unterminated header: NUL at offset %"PRIuMAX"", i);
 		case '\n':
 			if (i + 1 < size && buffer[i + 1] == '\n')
 				return 0;
@@ -852,7 +852,7 @@ static int fsck_ident(const char **ident,
 }
 
 static int fsck_commit(const struct object_id *oid,
-		       const char *buffer, unsigned long size,
+		       const char *buffer, size_t size,
 		       struct fsck_options *options)
 {
 	struct object_id tree_oid, parent_oid;
@@ -908,7 +908,7 @@ static int fsck_commit(const struct object_id *oid,
 }
 
 static int fsck_tag(const struct object_id *oid, const char *buffer,
-		    unsigned long size, struct fsck_options *options)
+		    size_t size, struct fsck_options *options)
 {
 	struct object_id tagged_oid;
 	int ret = 0;
@@ -1173,7 +1173,7 @@ static int fsck_gitmodules_fn(const char *var, const char *value, void *vdata)
 }
 
 static int fsck_blob(const struct object_id *oid, const char *buf,
-		     unsigned long size, struct fsck_options *options)
+		     size_t size, struct fsck_options *options)
 {
 	struct fsck_gitmodules_data data;
 	struct config_options config_opts = { 0 };
@@ -1209,7 +1209,7 @@ static int fsck_blob(const struct object_id *oid, const char *buf,
 	return data.ret;
 }
 
-int fsck_object(struct object *obj, void *data, unsigned long size,
+int fsck_object(struct object *obj, void *data, size_t size,
 	struct fsck_options *options)
 {
 	if (!obj)
@@ -1252,7 +1252,7 @@ int fsck_finish(struct fsck_options *options)
 	oidset_iter_init(&gitmodules_found, &iter);
 	while ((oid = oidset_iter_next(&iter))) {
 		enum object_type type;
-		unsigned long size;
+		size_t size;
 		char *buf;
 
 		if (oidset_contains(&gitmodules_done, oid))

@@ -509,7 +509,7 @@ static void fmt_merge_msg_sigs(struct strbuf *out)
 	for (i = 0; i < origins.nr; i++) {
 		struct object_id *oid = origins.items[i].util;
 		enum object_type type;
-		unsigned long size, len;
+		size_t size, len;
 		char *buf = read_object_file(oid, &type, &size);
 		struct signature_check sigc = { NULL };
 		struct strbuf sig = STRBUF_INIT;
