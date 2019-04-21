@@ -286,7 +286,7 @@ static int write_zip_entry(struct archiver_args *args,
 			   const struct object_id *oid,
 			   const char *path, size_t pathlen,
 			   unsigned int mode,
-			   void *buffer, unsigned long size)
+			   void *buffer, size_t size)
 {
 	struct zip_local_header header;
 	uintmax_t offset = zip_offset;

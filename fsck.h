@@ -59,7 +59,7 @@ int fsck_walk(struct object *obj, void *data, struct fsck_options *options);
  * Blob objects my pass a NULL data pointer, which indicates they are too large
  * to fit in memory. All other types must pass a real buffer.
  */
-int fsck_object(struct object *obj, void *data, unsigned long size,
+int fsck_object(struct object *obj, void *data, size_t size,
 	struct fsck_options *options);
 
 /*
