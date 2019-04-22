@@ -189,6 +189,7 @@ int config_with_options(config_fn_t fn, void *,
 
 int git_parse_ssize_t(const char *, ssize_t *);
 int git_parse_ulong(const char *, unsigned long *);
+int git_parse_size_t(const char *, size_t *);
 
 /**
  * Same as `git_config_bool`, except that it returns -1 on error rather
@@ -208,7 +209,7 @@ int64_t git_config_int64(const char *, const char *);
  * Identical to `git_config_int`, but for unsigned longs.
  */
 unsigned long git_config_ulong(const char *, const char *);
-
+size_t git_config_size_t(const char *, const char *);
 ssize_t git_config_ssize_t(const char *, const char *);
 
 /**
@@ -320,8 +321,10 @@ int git_config_copy_section_in_file(const char *, const char *, const char *);
 const char *git_etc_gitconfig(void);
 int git_env_bool(const char *, int);
 unsigned long git_env_ulong(const char *, unsigned long);
+size_t git_env_size_t(const char *, size_t);
 int git_config_system(void);
 int config_error_nonbool(const char *);
+
 #if defined(__GNUC__)
 #define config_error_nonbool(s) (config_error_nonbool(s), const_error())
 #endif
