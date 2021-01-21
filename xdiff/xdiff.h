@@ -77,7 +77,7 @@ typedef struct s_mmbuffer {
 } mmbuffer_t;
 
 typedef struct s_xpparam {
-	unsigned long flags;
+	size_t flags;
 
 	/* -I<regex> */
 	regex_t **ignore_regex;
@@ -106,7 +106,7 @@ typedef int (*xdl_emit_hunk_consume_func_t)(long start_a, long count_a,
 typedef struct s_xdemitconf {
 	long ctxlen;
 	long interhunkctxlen;
-	unsigned long flags;
+	size_t flags;
 	find_func_t find_func;
 	void *find_func_priv;
 	xdl_emit_hunk_consume_func_t hunk_func;

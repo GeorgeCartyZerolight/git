@@ -719,7 +719,7 @@ static inline int are_same_oid(struct name_entry *name_j, struct name_entry *nam
 	return !is_null_oid(&name_j->oid) && !is_null_oid(&name_k->oid) && oideq(&name_j->oid, &name_k->oid);
 }
 
-static int all_trees_same_as_cache_tree(int n, unsigned long dirmask,
+static int all_trees_same_as_cache_tree(int n, size_t dirmask,
 					struct name_entry *names,
 					struct traverse_info *info)
 {
@@ -825,8 +825,8 @@ static int traverse_by_cache_tree(int pos, int nr_entries, int nr_names,
 	return 0;
 }
 
-static int traverse_trees_recursive(int n, unsigned long dirmask,
-				    unsigned long df_conflicts,
+static int traverse_trees_recursive(int n, size_t dirmask,
+				    size_t df_conflicts,
 				    struct name_entry *names,
 				    struct traverse_info *info)
 {
@@ -1035,15 +1035,15 @@ static struct cache_entry *create_ce_entry(const struct traverse_info *info,
  * without actually calling it. If you change the logic here you may need to
  * check and change there as well.
  */
-static int unpack_nondirectories(int n, unsigned long mask,
-				 unsigned long dirmask,
+static int unpack_nondirectories(int n, size_t mask,
+				 size_t dirmask,
 				 struct cache_entry **src,
 				 const struct name_entry *names,
 				 const struct traverse_info *info)
 {
 	int i;
 	struct unpack_trees_options *o = info->data;
-	unsigned long conflicts = info->df_conflicts | dirmask;
+	size_t conflicts = info->df_conflicts | dirmask;
 
 	/* Do we have *only* directories? Nothing to do */
 	if (mask == dirmask && !src[0])
@@ -1212,8 +1212,8 @@ static void debug_name_entry(int i, struct name_entry *n)
 }
 
 static void debug_unpack_callback(int n,
-				  unsigned long mask,
-				  unsigned long dirmask,
+				  size_t mask,
+				  size_t dirmask,
 				  struct name_entry *names,
 				  struct traverse_info *info)
 {
@@ -1231,7 +1231,7 @@ static void debug_unpack_callback(int n,
  * without actually calling it. If you change the logic here you may need to
  * check and change there as well.
  */
-static int unpack_callback(int n, unsigned long mask, unsigned long dirmask, struct name_entry *names, struct traverse_info *info)
+static int unpack_callback(int n, size_t mask, size_t dirmask, struct name_entry *names, struct traverse_info *info)
 {
 	struct cache_entry *src[MAX_UNPACK_TREES + 1] = { NULL, };
 	struct unpack_trees_options *o = info->data;
@@ -1499,7 +1499,7 @@ static int clear_ce_flags(struct index_state *istate,
 					istate->cache_nr);
 
 	xsnprintf(label, sizeof(label), "clear_ce_flags(0x%08lx,0x%08lx)",
-		  (unsigned long)select_mask, (unsigned long)clear_mask);
+		  (size_t)select_mask, (size_t)clear_mask);
 	trace2_region_enter("unpack_trees", label, the_repository);
 	rval = clear_ce_flags_1(istate,
 				istate->cache,

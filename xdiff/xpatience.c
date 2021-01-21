@@ -47,13 +47,13 @@
 struct hashmap {
 	int nr, alloc;
 	struct entry {
-		unsigned long hash;
+		size_t hash;
 		/*
 		 * 0 = unused entry, 1 = first line, 2 = second, etc.
 		 * line2 is NON_UNIQUE if the line is not unique
 		 * in either the first or the second file.
 		 */
-		unsigned long line1, line2;
+		size_t line1, line2;
 		/*
 		 * "next" & "previous" are used for the longest common
 		 * sequence;
@@ -68,7 +68,7 @@ struct hashmap {
 		unsigned anchor : 1;
 	} *entries, *first, *last;
 	/* were common records found? */
-	unsigned long has_matches;
+	size_t has_matches;
 	mmfile_t *file1, *file2;
 	xdfenv_t *env;
 	xpparam_t const *xpp;

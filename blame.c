@@ -225,7 +225,7 @@ static struct commit *fake_working_tree_commit(struct repository *r,
 		struct stat st;
 		const char *read_from;
 		char *buf_ptr;
-		unsigned long buf_len;
+		size_t buf_len;
 
 		if (contents_from) {
 			if (stat(contents_from, &st) < 0)
@@ -321,7 +321,7 @@ static const char *get_next_line(const char *start, const char *end)
 }
 
 static int find_line_starts(int **line_starts, const char *buf,
-			    unsigned long len)
+			    size_t len)
 {
 	const char *end = buf + len;
 	const char *p;
@@ -1020,7 +1020,7 @@ static void fill_origin_blob(struct diff_options *opt,
 {
 	if (!o->file.ptr) {
 		enum object_type type;
-		unsigned long file_size;
+		size_t file_size;
 
 		(*num_read_blob)++;
 		if (opt->flags.allow_textconv &&

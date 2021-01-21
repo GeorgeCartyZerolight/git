@@ -797,11 +797,11 @@ static void filter_bitmap_blob_none(struct bitmap_index *bitmap_git,
 				   OBJ_BLOB);
 }
 
-static unsigned long get_size_by_pos(struct bitmap_index *bitmap_git,
+static size_t get_size_by_pos(struct bitmap_index *bitmap_git,
 				     uint32_t pos)
 {
 	struct packed_git *pack = bitmap_git->pack;
-	unsigned long size;
+	size_t size;
 	struct object_info oi = OBJECT_INFO_INIT;
 
 	oi.sizep = &size;
@@ -827,7 +827,7 @@ static unsigned long get_size_by_pos(struct bitmap_index *bitmap_git,
 static void filter_bitmap_blob_limit(struct bitmap_index *bitmap_git,
 				     struct object_list *tip_objects,
 				     struct bitmap *to_filter,
-				     unsigned long limit)
+				     size_t limit)
 {
 	struct eindex *eindex = &bitmap_git->ext_index;
 	struct bitmap *tips;
@@ -872,7 +872,7 @@ static void filter_bitmap_blob_limit(struct bitmap_index *bitmap_git,
 static void filter_bitmap_tree_depth(struct bitmap_index *bitmap_git,
 				     struct object_list *tip_objects,
 				     struct bitmap *to_filter,
-				     unsigned long limit)
+				     size_t limit)
 {
 	if (limit)
 		BUG("filter_bitmap_tree_depth given non-zero limit");
@@ -1044,7 +1044,7 @@ static void try_partial_reuse(struct bitmap_index *bitmap_git,
 	struct revindex_entry *revidx;
 	off_t offset;
 	enum object_type type;
-	unsigned long size;
+	size_t size;
 
 	if (pos >= bitmap_git->pack->num_objects)
 		return; /* not actually in the pack */

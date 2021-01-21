@@ -36,7 +36,7 @@ int cmd_env__helper(int argc, const char **argv, const char *prefix)
 	const char *env_default = NULL;
 	int ret;
 	int ret_int, default_int;
-	unsigned long ret_ulong, default_ulong;
+	size_t ret_ulong, default_ulong;
 	enum cmdmode cmdmode = 0;
 	struct option opts[] = {
 		OPT_CALLBACK_F(0, "type", &cmdmode, N_("type"),
@@ -79,7 +79,7 @@ int cmd_env__helper(int argc, const char **argv, const char *prefix)
 	case ENV_HELPER_TYPE_ULONG:
 		if (env_default) {
 			if (!git_parse_ulong(env_default, &default_ulong)) {
-				error(_("option `--default' expects an unsigned long value with `--type=ulong`, not `%s`"),
+				error(_("option `--default' expects an size_t value with `--type=ulong`, not `%s`"),
 				      env_default);
 				usage_with_options(env__helper_usage, opts);
 			}

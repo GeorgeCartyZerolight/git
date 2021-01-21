@@ -9,7 +9,7 @@
 
 int cmd__genrandom(int argc, const char **argv)
 {
-	unsigned long count, next = 0;
+	size_t count, next = 0;
 	unsigned char *c;
 
 	if (argc < 2 || argc > 3) {

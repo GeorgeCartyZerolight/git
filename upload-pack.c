@@ -105,7 +105,7 @@ struct upload_pack_data {
 	unsigned use_include_tag : 1;
 	unsigned allow_filter : 1;
 	unsigned allow_filter_fallback : 1;
-	unsigned long tree_filter_max_depth;
+	size_t tree_filter_max_depth;
 
 	unsigned done : 1;					/* v2 only */
 	unsigned allow_ref_in_want : 1;				/* v2 only */

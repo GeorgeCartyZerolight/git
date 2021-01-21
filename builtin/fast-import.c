@@ -154,7 +154,7 @@ typedef void (*mark_set_inserter_t)(struct mark_set **s, struct object_id *oid, 
 typedef void (*each_mark_fn_t)(uintmax_t mark, void *obj, void *cbp);
 
 /* Configured limits on output */
-static unsigned long max_depth = 50;
+static size_t max_depth = 50;
 static off_t max_packsize;
 static int unpack_limit = 100;
 static int force_update;
@@ -166,9 +166,9 @@ static uintmax_t object_count_by_type[1 << TYPE_BITS];
 static uintmax_t duplicate_count_by_type[1 << TYPE_BITS];
 static uintmax_t delta_count_by_type[1 << TYPE_BITS];
 static uintmax_t delta_count_attempts_by_type[1 << TYPE_BITS];
-static unsigned long object_count;
-static unsigned long branch_count;
-static unsigned long branch_load_count;
+static size_t object_count;
+static size_t branch_count;
+static size_t branch_load_count;
 static int failure;
 static FILE *pack_edges;
 static unsigned int show_stats = 1;
@@ -217,9 +217,9 @@ static struct strbuf old_tree = STRBUF_INIT;
 static struct strbuf new_tree = STRBUF_INIT;
 
 /* Branch data */
-static unsigned long max_active_branches = 5;
-static unsigned long cur_active_branches;
-static unsigned long branch_table_sz = 1039;
+static size_t max_active_branches = 5;
+static size_t cur_active_branches;
+static size_t branch_table_sz = 1039;
 static struct branch **branch_table;
 static struct branch *active_branches;
 
@@ -313,7 +313,7 @@ static void write_crash_report(const char *err)
 	char *loc = git_pathdup("fast_import_crash_%"PRIuMAX, (uintmax_t) getpid());
 	FILE *rpt = fopen(loc, "w");
 	struct branch *b;
-	unsigned long lu;
+	size_t lu;
 	struct recent_command *rc;
 
 	if (!rpt) {
@@ -495,7 +495,7 @@ static struct object_entry *insert_object(struct object_id *oid)
 
 static void invalidate_pack_id(unsigned int id)
 {
-	unsigned long lu;
+	size_t lu;
 	struct tag *t;
 	struct hashmap_iter iter;
 	struct object_entry *e;
@@ -931,12 +931,12 @@ static int store_object(
 	struct object_entry *e;
 	unsigned char hdr[96];
 	struct object_id oid;
-	unsigned long hdrlen, deltalen;
+	size_t hdrlen, deltalen;
 	git_hash_ctx c;
 	git_zstream s;
 
 	hdrlen = xsnprintf((char *)hdr, sizeof(hdr), "%s %lu",
-			   type_name(type), (unsigned long)dat->len) + 1;
+			   type_name(type), (size_t)dat->len) + 1;
 	the_hash_algo->init_fn(&c);
 	the_hash_algo->update_fn(&c, hdr, hdrlen);
 	the_hash_algo->update_fn(&c, dat->buf, dat->len);
@@ -1073,7 +1073,7 @@ static void stream_blob(uintmax_t len, struct object_id *oidout, uintmax_t mark)
 	unsigned char *out_buf = xmalloc(out_sz);
 	struct object_entry *e;
 	struct object_id oid;
-	unsigned long hdrlen;
+	size_t hdrlen;
 	off_t offset;
 	git_hash_ctx c;
 	git_zstream s;
@@ -1192,7 +1192,7 @@ static void stream_blob(uintmax_t len, struct object_id *oidout, uintmax_t mark)
  */
 static void *gfi_unpack_entry(
 	struct object_entry *oe,
-	unsigned long *sizep)
+	size_t *sizep)
 {
 	enum object_type type;
 	struct packed_git *p = all_packs[oe->pack_id];
@@ -1238,7 +1238,7 @@ static void load_tree(struct tree_entry *root)
 	struct object_id *oid = &root->versions[1].oid;
 	struct object_entry *myoe;
 	struct tree_content *t;
-	unsigned long size;
+	size_t size;
 	char *buf;
 	const char *c;
 
@@ -1891,7 +1891,7 @@ static int parse_data(struct strbuf *sb, uintmax_t limit, uintmax_t *len_res)
 			size_t s = strbuf_fread(sb, length - n, stdin);
 			if (!s && feof(stdin))
 				die("EOF in data (%lu bytes remaining)",
-					(unsigned long)(length - n));
+					(size_t)(length - n));
 			n += s;
 		}
 	}
@@ -1904,7 +1904,7 @@ static int validate_raw_date(const char *src, struct strbuf *result, int strict)
 {
 	const char *orig_src = src;
 	char *endp;
-	unsigned long num;
+	size_t num;
 
 	errno = 0;
 
@@ -2478,7 +2478,7 @@ static void note_change_n(const char *p, struct branch *b, unsigned char *old_fa
 			die("Mark :%" PRIuMAX " not a commit", commit_mark);
 		oidcpy(&commit_oid, &commit_oe->idx.oid);
 	} else if (!get_oid(p, &commit_oid)) {
-		unsigned long size;
+		size_t size;
 		char *buf = read_object_with_reference(the_repository,
 						       &commit_oid,
 						       commit_type, &size,
@@ -2532,7 +2532,7 @@ static void file_change_deleteall(struct branch *b)
 	b->num_notes = 0;
 }
 
-static void parse_from_commit(struct branch *b, char *buf, unsigned long size)
+static void parse_from_commit(struct branch *b, char *buf, size_t size)
 {
 	if (!buf || size < the_hash_algo->hexsz + 6)
 		die("Not a valid commit: %s", oid_to_hex(&b->oid));
@@ -2549,7 +2549,7 @@ static void parse_from_existing(struct branch *b)
 		oidclr(&b->branch_tree.versions[0].oid);
 		oidclr(&b->branch_tree.versions[1].oid);
 	} else {
-		unsigned long size;
+		size_t size;
 		char *buf;
 
 		buf = read_object_with_reference(the_repository,
@@ -2583,7 +2583,7 @@ static int parse_objectish(struct branch *b, const char *objectish)
 		if (!oideq(&b->oid, &oe->idx.oid)) {
 			oidcpy(&b->oid, &oe->idx.oid);
 			if (oe->pack_id != MAX_PACK_ID) {
-				unsigned long size;
+				size_t size;
 				char *buf = gfi_unpack_entry(oe, &size);
 				parse_from_commit(b, buf, size);
 				free(buf);
@@ -2646,7 +2646,7 @@ static struct hash_list *parse_merge(unsigned int *count)
 				die("Mark :%" PRIuMAX " not a commit", idnum);
 			oidcpy(&n->oid, &oe->idx.oid);
 		} else if (!get_oid(from, &n->oid)) {
-			unsigned long size;
+			size_t size;
 			char *buf = read_object_with_reference(the_repository,
 							       &n->oid,
 							       commit_type,
@@ -2913,7 +2913,7 @@ static void parse_reset_branch(const char *arg)
 		unread_command_buf = 1;
 }
 
-static void cat_blob_write(const char *buf, unsigned long size)
+static void cat_blob_write(const char *buf, size_t size)
 {
 	if (write_in_full(cat_blob_fd, buf, size) < 0)
 		die_errno("Write to frontend failed");
@@ -2922,7 +2922,7 @@ static void cat_blob_write(const char *buf, unsigned long size)
 static void cat_blob(struct object_entry *oe, struct object_id *oid)
 {
 	struct strbuf line = STRBUF_INIT;
-	unsigned long size;
+	size_t size;
 	enum object_type type = 0;
 	char *buf;
 
@@ -3006,7 +3006,7 @@ static void parse_cat_blob(const char *p)
 static struct object_entry *dereference(struct object_entry *oe,
 					struct object_id *oid)
 {
-	unsigned long size;
+	size_t size;
 	char *buf = NULL;
 	const unsigned hexsz = the_hash_algo->hexsz;
 
@@ -3271,10 +3271,10 @@ static void option_date_format(const char *fmt)
 		die("unknown --date-format argument %s", fmt);
 }
 
-static unsigned long ulong_arg(const char *option, const char *arg)
+static size_t ulong_arg(const char *option, const char *arg)
 {
 	char *endptr;
-	unsigned long rv = strtoul(arg, &endptr, 0);
+	size_t rv = strtoul(arg, &endptr, 0);
 	if (strchr(arg, '-') || endptr == arg || *endptr)
 		die("%s: argument must be a non-negative integer", option);
 	return rv;
@@ -3299,8 +3299,8 @@ static void option_export_marks(const char *marks)
 
 static void option_cat_blob_fd(const char *fd)
 {
-	unsigned long n = ulong_arg("--cat-blob-fd", fd);
-	if (n > (unsigned long) INT_MAX)
+	size_t n = ulong_arg("--cat-blob-fd", fd);
+	if (n > (size_t) INT_MAX)
 		die("--cat-blob-fd cannot exceed %d", INT_MAX);
 	cat_blob_fd = (int) n;
 }
@@ -3336,7 +3336,7 @@ static void option_rewrite_submodules(const char *arg, struct string_list *list)
 static int parse_one_option(const char *option)
 {
 	if (skip_prefix(option, "max-pack-size=", &option)) {
-		unsigned long v;
+		size_t v;
 		if (!git_parse_ulong(option, &v))
 			return 0;
 		if (v < 8192) {
@@ -3348,7 +3348,7 @@ static int parse_one_option(const char *option)
 		}
 		max_packsize = v;
 	} else if (skip_prefix(option, "big-file-threshold=", &option)) {
-		unsigned long v;
+		size_t v;
 		if (!git_parse_ulong(option, &v))
 			return 0;
 		big_file_threshold = v;
@@ -3446,7 +3446,7 @@ static void git_pack_config(void)
 {
 	int indexversion_value;
 	int limit;
-	unsigned long packsizelimit_value;
+	size_t packsizelimit_value;
 
 	if (!git_config_get_ulong("pack.depth", &max_depth)) {
 		if (max_depth > MAX_DEPTH)
@@ -3624,7 +3624,7 @@ int cmd_fast_import(int argc, const char **argv, const char *prefix)
 		fprintf(stderr, "      marks:     %10" PRIuMAX " (%10" PRIuMAX " unique    )\n", (((uintmax_t)1) << marks->shift) * 1024, marks_set_count);
 		fprintf(stderr, "      atoms:     %10u\n", atom_cnt);
 		fprintf(stderr, "Memory total:    %10" PRIuMAX " KiB\n", (tree_entry_allocd + fi_mem_pool.pool_alloc + alloc_count*sizeof(struct object_entry))/1024);
-		fprintf(stderr, "       pools:    %10lu KiB\n", (unsigned long)((tree_entry_allocd + fi_mem_pool.pool_alloc) /1024));
+		fprintf(stderr, "       pools:    %10lu KiB\n", (size_t)((tree_entry_allocd + fi_mem_pool.pool_alloc) /1024));
 		fprintf(stderr, "     objects:    %10" PRIuMAX " KiB\n", (alloc_count*sizeof(struct object_entry))/1024);
 		fprintf(stderr, "---------------------------------------------------------------------\n");
 		pack_report();

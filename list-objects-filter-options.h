@@ -52,8 +52,8 @@ struct list_objects_filter_options {
 	 */
 
 	char *sparse_oid_name;
-	unsigned long blob_limit_value;
-	unsigned long tree_exclude_depth;
+	size_t blob_limit_value;
+	size_t tree_exclude_depth;
 
 	/* LOFC_COMBINE values */
 

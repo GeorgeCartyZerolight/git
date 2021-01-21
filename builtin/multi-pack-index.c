@@ -12,7 +12,7 @@ static char const * const builtin_multi_pack_index_usage[] = {
 
 static struct opts_multi_pack_index {
 	const char *object_dir;
-	unsigned long batch_size;
+	size_t batch_size;
 	int progress;
 } opts;
 

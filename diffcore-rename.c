@@ -197,7 +197,7 @@ static int estimate_similarity(struct repository *r,
 	 * match than anything else; the destination does not even
 	 * call into this function in that case.
 	 */
-	unsigned long max_size, delta_size, base_size, src_copied, literal_added;
+	size_t max_size, delta_size, base_size, src_copied, literal_added;
 	int score;
 	struct diff_populate_filespec_options dpf_options = {
 		.check_size_only = 1

@@ -116,7 +116,7 @@ static struct combine_diff_path *intersect_paths(
 struct lline {
 	struct lline *next, *prev;
 	int len;
-	unsigned long parent_map;
+	size_t parent_map;
 	char line[FLEX_ARRAY];
 };
 
@@ -139,8 +139,8 @@ struct sline {
 	 * bit N is used for "interesting" lines, including context.
 	 * bit (N+1) is used for "do not show deletion before this".
 	 */
-	unsigned long flag;
-	unsigned long *p_lno;
+	size_t flag;
+	size_t *p_lno;
 };
 
 static int match_string_spaces(const char *line1, int len1,
@@ -188,7 +188,7 @@ enum coalesce_direction { MATCH, BASE, NEW };
 /* Coalesce new lines into base by finding LCS */
 static struct lline *coalesce_lines(struct lline *base, int *lenbase,
 				    struct lline *newline, int lennew,
-				    unsigned long parent, long flags)
+				    size_t parent, long flags)
 {
 	int **lcs;
 	enum coalesce_direction **directions;
@@ -311,7 +311,7 @@ static struct lline *coalesce_lines(struct lline *base, int *lenbase,
 
 static char *grab_blob(struct repository *r,
 		       const struct object_id *oid, unsigned int mode,
-		       unsigned long *size, struct userdiff_driver *textconv,
+		       size_t *size, struct userdiff_driver *textconv,
 		       const char *path)
 {
 	char *blob;
@@ -342,7 +342,7 @@ static char *grab_blob(struct repository *r,
 static void append_lost(struct sline *sline, int n, const char *line, int len)
 {
 	struct lline *lline;
-	unsigned long this_mask = (1UL<<n);
+	size_t this_mask = (1UL<<n);
 	if (line[len-1] == '\n')
 		len--;
 
@@ -362,7 +362,7 @@ static void append_lost(struct sline *sline, int n, const char *line, int len)
 struct combine_diff_state {
 	unsigned int lno;
 	int ob, on, nb, nn;
-	unsigned long nmask;
+	size_t nmask;
 	int num_parent;
 	int n;
 	struct sline *sline;
@@ -399,11 +399,11 @@ static void consume_hunk(void *state_,
 	}
 	if (!state->sline[state->nb-1].p_lno)
 		state->sline[state->nb-1].p_lno =
-			xcalloc(state->num_parent, sizeof(unsigned long));
+			xcalloc(state->num_parent, sizeof(size_t));
 	state->sline[state->nb-1].p_lno[state->n] = state->ob;
 }
 
-static void consume_line(void *state_, char *line, unsigned long len)
+static void consume_line(void *state_, char *line, size_t len)
 {
 	struct combine_diff_state *state = state_;
 	if (!state->lost_bucket)
@@ -428,12 +428,12 @@ static void combine_diff(struct repository *r,
 			 const char *path, long flags)
 {
 	unsigned int p_lno, lno;
-	unsigned long nmask = (1UL << n);
+	size_t nmask = (1UL << n);
 	xpparam_t xpp;
 	xdemitconf_t xecfg;
 	mmfile_t parent_file;
 	struct combine_diff_state state;
-	unsigned long sz;
+	size_t sz;
 
 	if (result_deleted)
 		return; /* result deleted */
@@ -490,10 +490,10 @@ static void combine_diff(struct repository *r,
 	sline[lno].p_lno[n] = p_lno; /* trailer */
 }
 
-static unsigned long context = 3;
+static size_t context = 3;
 static char combine_marker = '@';
 
-static int interesting(struct sline *sline, unsigned long all_mask)
+static int interesting(struct sline *sline, size_t all_mask)
 {
 	/* If some parents lost lines here, or if we have added to
 	 * some parent, it is interesting.
@@ -501,10 +501,10 @@ static int interesting(struct sline *sline, unsigned long all_mask)
 	return ((sline->flag & all_mask) || sline->lost);
 }
 
-static unsigned long adjust_hunk_tail(struct sline *sline,
-				      unsigned long all_mask,
-				      unsigned long hunk_begin,
-				      unsigned long i)
+static size_t adjust_hunk_tail(struct sline *sline,
+				      size_t all_mask,
+				      size_t hunk_begin,
+				      size_t i)
 {
 	/* i points at the first uninteresting line.  If the last line
 	 * of the hunk was interesting only because it has some
@@ -518,10 +518,10 @@ static unsigned long adjust_hunk_tail(struct sline *sline,
 	return i;
 }
 
-static unsigned long find_next(struct sline *sline,
-			       unsigned long mark,
-			       unsigned long i,
-			       unsigned long cnt,
+static size_t find_next(struct sline *sline,
+			       size_t mark,
+			       size_t i,
+			       size_t cnt,
 			       int look_for_uninteresting)
 {
 	/* We have examined up to i-1 and are about to look at i.
@@ -541,12 +541,12 @@ static unsigned long find_next(struct sline *sline,
 	return i;
 }
 
-static int give_context(struct sline *sline, unsigned long cnt, int num_parent)
+static int give_context(struct sline *sline, size_t cnt, int num_parent)
 {
-	unsigned long all_mask = (1UL<<num_parent) - 1;
-	unsigned long mark = (1UL<<num_parent);
-	unsigned long no_pre_delete = (2UL<<num_parent);
-	unsigned long i;
+	size_t all_mask = (1UL<<num_parent) - 1;
+	size_t mark = (1UL<<num_parent);
+	size_t no_pre_delete = (2UL<<num_parent);
+	size_t i;
 
 	/* Two groups of interesting lines may have a short gap of
 	 * uninteresting lines.  Connect such groups to give them a
@@ -562,8 +562,8 @@ static int give_context(struct sline *sline, unsigned long cnt, int num_parent)
 		return 0;
 
 	while (i <= cnt) {
-		unsigned long j = (context < i) ? (i - context) : 0;
-		unsigned long k;
+		size_t j = (context < i) ? (i - context) : 0;
+		size_t k;
 
 		/* Paint a few lines before the first interesting line. */
 		while (j < i) {
@@ -606,12 +606,12 @@ static int give_context(struct sline *sline, unsigned long cnt, int num_parent)
 	return 1;
 }
 
-static int make_hunks(struct sline *sline, unsigned long cnt,
+static int make_hunks(struct sline *sline, size_t cnt,
 		       int num_parent, int dense)
 {
-	unsigned long all_mask = (1UL<<num_parent) - 1;
-	unsigned long mark = (1UL<<num_parent);
-	unsigned long i;
+	size_t all_mask = (1UL<<num_parent) - 1;
+	size_t mark = (1UL<<num_parent);
+	size_t i;
 	int has_interesting = 0;
 
 	for (i = 0; i <= cnt; i++) {
@@ -629,8 +629,8 @@ static int make_hunks(struct sline *sline, unsigned long cnt,
 	 */
 	i = 0;
 	while (i <= cnt) {
-		unsigned long j, hunk_begin, hunk_end;
-		unsigned long same_diff;
+		size_t j, hunk_begin, hunk_end;
+		size_t same_diff;
 		while (i <= cnt && !(sline[i].flag & mark))
 			i++;
 		if (cnt < i)
@@ -642,7 +642,7 @@ static int make_hunks(struct sline *sline, unsigned long cnt,
 				 * is an interesting line after this
 				 * hunk within context span.
 				 */
-				unsigned long la; /* lookahead */
+				size_t la; /* lookahead */
 				int contin = 0;
 				la = adjust_hunk_tail(sline, all_mask,
 						     hunk_begin, j);
@@ -683,7 +683,7 @@ static int make_hunks(struct sline *sline, unsigned long cnt,
 		same_diff = 0;
 		has_interesting = 0;
 		for (j = i; j < hunk_end && !has_interesting; j++) {
-			unsigned long this_diff = sline[j].flag & all_mask;
+			size_t this_diff = sline[j].flag & all_mask;
 			struct lline *ll = sline[j].lost;
 			if (this_diff) {
 				/* This has some changes.  Is it the
@@ -722,7 +722,7 @@ static int make_hunks(struct sline *sline, unsigned long cnt,
 	return has_interesting;
 }
 
-static void show_parent_lno(struct sline *sline, unsigned long l0, unsigned long l1, int n, unsigned long null_context)
+static void show_parent_lno(struct sline *sline, size_t l0, size_t l1, int n, size_t null_context)
 {
 	l0 = sline[l0].p_lno[n];
 	l1 = sline[l1].p_lno[n];
@@ -752,13 +752,13 @@ static void show_line_to_eol(const char *line, int len, const char *reset)
 }
 
 static void dump_sline(struct sline *sline, const char *line_prefix,
-		       unsigned long cnt, int num_parent,
+		       size_t cnt, int num_parent,
 		       int use_color, int result_deleted)
 {
-	unsigned long mark = (1UL<<num_parent);
-	unsigned long no_pre_delete = (2UL<<num_parent);
+	size_t mark = (1UL<<num_parent);
+	size_t no_pre_delete = (2UL<<num_parent);
 	int i;
-	unsigned long lno = 0;
+	size_t lno = 0;
 	const char *c_frag = diff_get_color(use_color, DIFF_FRAGINFO);
 	const char *c_func = diff_get_color(use_color, DIFF_FUNCINFO);
 	const char *c_new = diff_get_color(use_color, DIFF_FILE_NEW);
@@ -770,10 +770,10 @@ static void dump_sline(struct sline *sline, const char *line_prefix,
 		return; /* result deleted */
 
 	while (1) {
-		unsigned long hunk_end;
-		unsigned long rlines;
+		size_t hunk_end;
+		size_t rlines;
 		const char *hunk_comment = NULL;
-		unsigned long null_context = 0;
+		size_t null_context = 0;
 
 		while (lno <= cnt && !(sline[lno].flag & mark)) {
 			if (hunk_comment_line(sline[lno].bol))
@@ -801,7 +801,7 @@ static void dump_sline(struct sline *sline, const char *line_prefix,
 			 * with all blank context markers in such a
 			 * case.  Compensate.
 			 */
-			unsigned long j;
+			size_t j;
 			for (j = lno; j < hunk_end; j++)
 				if (!(sline[j].flag & (mark-1)))
 					null_context++;
@@ -836,7 +836,7 @@ static void dump_sline(struct sline *sline, const char *line_prefix,
 		while (lno < hunk_end) {
 			struct lline *ll;
 			int j;
-			unsigned long p_mask;
+			size_t p_mask;
 			struct sline *sl = &sline[lno++];
 			ll = (sl->flag & no_pre_delete) ? NULL : sl->lost;
 			while (ll) {
@@ -877,14 +877,14 @@ static void dump_sline(struct sline *sline, const char *line_prefix,
 	}
 }
 
-static void reuse_combine_diff(struct sline *sline, unsigned long cnt,
+static void reuse_combine_diff(struct sline *sline, size_t cnt,
 			       int i, int j)
 {
 	/* We have already examined parent j and we know parent i
 	 * and parent j are the same, so reuse the combined result
 	 * of parent j for parent i.
 	 */
-	unsigned long lno, imask, jmask;
+	size_t lno, imask, jmask;
 	imask = (1UL<<i);
 	jmask = (1UL<<j);
 
@@ -1016,7 +1016,7 @@ static void show_patch_diff(struct combine_diff_path *elem, int num_parent,
 			    struct rev_info *rev)
 {
 	struct diff_options *opt = &rev->diffopt;
-	unsigned long result_size, cnt, lno;
+	size_t result_size, cnt, lno;
 	int result_deleted = 0;
 	char *result, *cp;
 	struct sline *sline; /* survived lines */
@@ -1134,7 +1134,7 @@ static void show_patch_diff(struct combine_diff_path *elem, int num_parent,
 		is_binary = buffer_is_binary(result, result_size);
 		for (i = 0; !is_binary && i < num_parent; i++) {
 			char *buf;
-			unsigned long size;
+			size_t size;
 			buf = grab_blob(opt->repo,
 					&elem->parent[i].oid,
 					elem->parent[i].mode,
@@ -1178,7 +1178,7 @@ static void show_patch_diff(struct combine_diff_path *elem, int num_parent,
 	/* Even p_lno[cnt+1] is valid -- that is for the end line number
 	 * for deletion hunk at the end.
 	 */
-	sline[0].p_lno = xcalloc(st_mult(st_add(cnt, 2), num_parent), sizeof(unsigned long));
+	sline[0].p_lno = xcalloc(st_mult(st_add(cnt, 2), num_parent), sizeof(size_t));
 	for (lno = 0; lno <= cnt; lno++)
 		sline[lno+1].p_lno = sline[lno].p_lno + num_parent;
 

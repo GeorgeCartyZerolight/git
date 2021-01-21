@@ -31,12 +31,12 @@ static int xdiff_out_hunk(void *priv_,
 	return 0;
 }
 
-static void consume_one(void *priv_, char *s, unsigned long size)
+static void consume_one(void *priv_, char *s, size_t size)
 {
 	struct xdiff_emit_state *priv = priv_;
 	char *ep;
 	while (size) {
-		unsigned long this_size;
+		size_t this_size;
 		ep = memchr(s, '\n', size);
 		this_size = (ep == NULL) ? size : (ep - s + 1);
 		priv->line_fn(priv->consume_callback_data, s, this_size);
@@ -169,7 +169,7 @@ int read_mmfile(mmfile_t *ptr, const char *filename)
 
 void read_mmblob(mmfile_t *ptr, const struct object_id *oid)
 {
-	unsigned long size;
+	size_t size;
 	enum object_type type;
 
 	if (oideq(oid, &null_oid)) {
@@ -185,7 +185,7 @@ void read_mmblob(mmfile_t *ptr, const struct object_id *oid)
 }
 
 #define FIRST_FEW_BYTES 8000
-int buffer_is_binary(const char *ptr, unsigned long size)
+int buffer_is_binary(const char *ptr, size_t size)
 {
 	if (FIRST_FEW_BYTES < size)
 		size = FIRST_FEW_BYTES;
@@ -288,7 +288,7 @@ void xdiff_clear_find_func(xdemitconf_t *xecfg)
 	}
 }
 
-unsigned long xdiff_hash_string(const char *s, size_t len, long flags)
+size_t xdiff_hash_string(const char *s, size_t len, long flags)
 {
 	return xdl_hash_record(&s, s + len, flags);
 }

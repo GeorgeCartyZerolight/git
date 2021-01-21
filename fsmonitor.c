@@ -43,7 +43,7 @@ static int fsmonitor_hook_version(void)
 }
 
 int read_fsmonitor_extension(struct index_state *istate, const void *data,
-	unsigned long sz)
+	size_t sz)
 {
 	const char *index = data;
 	uint32_t hdr_version;

@@ -25,7 +25,7 @@ struct patch_util {
 	struct object_id oid;
 };
 
-static size_t find_end_of_line(char *buffer, unsigned long size)
+static size_t find_end_of_line(char *buffer, size_t size)
 {
 	char *eol = memchr(buffer, '\n', size);
 
@@ -267,7 +267,7 @@ static void find_exact_matches(struct string_list *a, struct string_list *b)
 	hashmap_clear(&map);
 }
 
-static void diffsize_consume(void *data, char *line, unsigned long len)
+static void diffsize_consume(void *data, char *line, size_t len)
 {
 	(*(int *)data)++;
 }

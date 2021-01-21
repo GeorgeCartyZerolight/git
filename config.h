@@ -188,7 +188,7 @@ int config_with_options(config_fn_t fn, void *,
  */
 
 int git_parse_ssize_t(const char *, ssize_t *);
-int git_parse_ulong(const char *, unsigned long *);
+int git_parse_ulong(const char *, size_t *);
 
 /**
  * Same as `git_config_bool`, except that it returns -1 on error rather
@@ -205,9 +205,9 @@ int git_config_int(const char *, const char *);
 int64_t git_config_int64(const char *, const char *);
 
 /**
- * Identical to `git_config_int`, but for unsigned longs.
+ * Identical to `git_config_int`, but for size_ts.
  */
-unsigned long git_config_ulong(const char *, const char *);
+size_t git_config_ulong(const char *, const char *);
 
 ssize_t git_config_ssize_t(const char *, const char *);
 
@@ -319,7 +319,7 @@ int git_config_copy_section(const char *, const char *);
 int git_config_copy_section_in_file(const char *, const char *, const char *);
 const char *git_etc_gitconfig(void);
 int git_env_bool(const char *, int);
-unsigned long git_env_ulong(const char *, unsigned long);
+size_t git_env_ulong(const char *, size_t);
 int git_config_system(void);
 int config_error_nonbool(const char *);
 #if defined(__GNUC__)
@@ -483,7 +483,7 @@ int git_configset_get_value(struct config_set *cs, const char *key, const char *
 int git_configset_get_string(struct config_set *cs, const char *key, char **dest);
 int git_configset_get_string_tmp(struct config_set *cs, const char *key, const char **dest);
 int git_configset_get_int(struct config_set *cs, const char *key, int *dest);
-int git_configset_get_ulong(struct config_set *cs, const char *key, unsigned long *dest);
+int git_configset_get_ulong(struct config_set *cs, const char *key, size_t *dest);
 int git_configset_get_bool(struct config_set *cs, const char *key, int *dest);
 int git_configset_get_bool_or_int(struct config_set *cs, const char *key, int *is_bool, int *dest);
 int git_configset_get_maybe_bool(struct config_set *cs, const char *key, int *dest);
@@ -503,7 +503,7 @@ int repo_config_get_string_tmp(struct repository *repo,
 int repo_config_get_int(struct repository *repo,
 			const char *key, int *dest);
 int repo_config_get_ulong(struct repository *repo,
-			  const char *key, unsigned long *dest);
+			  const char *key, size_t *dest);
 int repo_config_get_bool(struct repository *repo,
 			 const char *key, int *dest);
 int repo_config_get_bool_or_int(struct repository *repo,
@@ -569,9 +569,9 @@ int git_config_get_string_tmp(const char *key, const char **dest);
 int git_config_get_int(const char *key, int *dest);
 
 /**
- * Similar to `git_config_get_int` but for unsigned longs.
+ * Similar to `git_config_get_int` but for size_ts.
  */
-int git_config_get_ulong(const char *key, unsigned long *dest);
+int git_config_get_ulong(const char *key, size_t *dest);
 
 /**
  * Finds and parses the value into a boolean value, for the configuration

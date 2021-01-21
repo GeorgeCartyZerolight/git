@@ -37,7 +37,7 @@ int cmd__hash_speed(int ac, const char **av)
 	printf("algo: %s\n", algo->name);
 
 	for (i = 0; i < ARRAY_SIZE(bufsizes); i++) {
-		unsigned long j, kb;
+		size_t j, kb;
 		double kb_per_sec;
 		p = xcalloc(1, bufsizes[i]);
 		start = end = clock() - initial;

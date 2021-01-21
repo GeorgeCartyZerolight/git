@@ -22,7 +22,7 @@ struct fscache *fscache;
 #define THREAD_COST (500)
 
 struct progress_data {
-	unsigned long n;
+	size_t n;
 	struct progress *progress;
 	pthread_mutex_t mutex;
 };

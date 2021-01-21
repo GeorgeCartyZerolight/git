@@ -124,8 +124,8 @@ struct filter_trees_depth_data {
 	 */
 	struct oidmap seen_at_depth;
 
-	unsigned long exclude_depth;
-	unsigned long current_depth;
+	size_t exclude_depth;
+	size_t current_depth;
 };
 
 struct seen_map_entry {
@@ -247,7 +247,7 @@ static void filter_trees_depth__init(
  * And to OPTIONALLY collect a list of the omitted OIDs.
  */
 struct filter_blobs_limit_data {
-	unsigned long max_bytes;
+	size_t max_bytes;
 };
 
 static enum list_objects_filter_result filter_blobs_limit(
@@ -260,7 +260,7 @@ static enum list_objects_filter_result filter_blobs_limit(
 	void *filter_data_)
 {
 	struct filter_blobs_limit_data *filter_data = filter_data_;
-	unsigned long object_length;
+	size_t object_length;
 	enum object_type t;
 
 	switch (filter_situation) {

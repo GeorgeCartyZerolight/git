@@ -943,7 +943,7 @@ struct write_commit_graph_context {
 	struct oid_array oids;
 	struct packed_commit_list commits;
 	int num_extra_edges;
-	unsigned long approx_nr_objects;
+	size_t approx_nr_objects;
 	struct progress *progress;
 	int progress_done;
 	uint64_t progress_cnt;

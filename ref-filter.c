@@ -70,7 +70,7 @@ struct refname_atom {
 static struct expand_data {
 	struct object_id oid;
 	enum object_type type;
-	unsigned long size;
+	size_t size;
 	off_t disk_size;
 	struct object_id delta_base_oid;
 	void *content;
@@ -1014,7 +1014,7 @@ static void grab_commit_values(struct atom_value *val, int deref, struct object 
 			continue;
 		if (!strcmp(name, "numparent")) {
 			v->value = commit_list_count(commit->parents);
-			v->s = xstrfmt("%lu", (unsigned long)v->value);
+			v->s = xstrfmt("%lu", (size_t)v->value);
 		}
 		else if (starts_with(name, "parent")) {
 			struct commit_list *parents;
@@ -1095,7 +1095,7 @@ static const char *copy_email(const char *buf, struct used_atom *atom)
 	return xmemdupz(email, eoemail - email);
 }
 
-static char *copy_subject(const char *buf, unsigned long len)
+static char *copy_subject(const char *buf, size_t len)
 {
 	struct strbuf sb = STRBUF_INIT;
 	int i;
@@ -1210,10 +1210,10 @@ static void grab_person(const char *who, struct atom_value *val, int deref, void
 }
 
 static void find_subpos(const char *buf,
-			const char **sub, unsigned long *sublen,
-			const char **body, unsigned long *bodylen,
-			unsigned long *nonsiglen,
-			const char **sig, unsigned long *siglen)
+			const char **sub, size_t *sublen,
+			const char **body, size_t *bodylen,
+			size_t *nonsiglen,
+			const char **sig, size_t *siglen)
 {
 	const char *eol;
 	/* skip past header until we hit empty line */
@@ -1260,7 +1260,7 @@ static void find_subpos(const char *buf,
  * If 'lines' is greater than 0, append that many lines from the given
  * 'buf' of length 'size' to the given strbuf.
  */
-static void append_lines(struct strbuf *out, const char *buf, unsigned long size, int lines)
+static void append_lines(struct strbuf *out, const char *buf, size_t size, int lines)
 {
 	int i;
 	const char *sp, *eol;
@@ -1285,7 +1285,7 @@ static void grab_sub_body_contents(struct atom_value *val, int deref, void *buf)
 {
 	int i;
 	const char *subpos = NULL, *bodypos = NULL, *sigpos = NULL;
-	unsigned long sublen = 0, bodylen = 0, nonsiglen = 0, siglen = 0;
+	size_t sublen = 0, bodylen = 0, nonsiglen = 0, siglen = 0;
 
 	for (i = 0; i < used_atom_cnt; i++) {
 		struct used_atom *atom = &used_atom[i];

@@ -47,8 +47,8 @@ static int should_break(struct repository *r,
 	 * The value we return is 1 if we want the pair to be broken,
 	 * or 0 if we do not.
 	 */
-	unsigned long delta_size, max_size;
-	unsigned long src_copied, literal_added, src_removed;
+	size_t delta_size, max_size;
+	size_t src_copied, literal_added, src_removed;
 
 	struct diff_populate_filespec_options options = { 0 };
 

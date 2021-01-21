@@ -51,8 +51,8 @@ static timestamp_t gc_log_expire_time;
 static const char *gc_log_expire = "1.day.ago";
 static const char *prune_expire = "2.weeks.ago";
 static const char *prune_worktrees_expire = "3.months.ago";
-static unsigned long big_pack_threshold;
-static unsigned long max_delta_cache_size = DEFAULT_DELTA_CACHE_SIZE;
+static size_t big_pack_threshold;
+static size_t max_delta_cache_size = DEFAULT_DELTA_CACHE_SIZE;
 
 static struct strvec pack_refs_cmd = STRVEC_INIT;
 static struct strvec reflog = STRVEC_INIT;
@@ -197,7 +197,7 @@ static int too_many_loose_objects(void)
 }
 
 static struct packed_git *find_base_packs(struct string_list *packs,
-					  unsigned long limit)
+					  size_t limit)
 {
 	struct packed_git *p, *base = NULL;
 
@@ -273,7 +273,7 @@ static uint64_t total_ram(void)
 
 static uint64_t estimate_repack_memory(struct packed_git *pack)
 {
-	unsigned long nr_objects = approximate_object_count();
+	size_t nr_objects = approximate_object_count();
 	size_t os_cache, heap;
 
 	if (!pack || !nr_objects)

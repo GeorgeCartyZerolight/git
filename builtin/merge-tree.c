@@ -57,7 +57,7 @@ static const char *explanation(struct merge_list *entry)
 	return "removed in remote";
 }
 
-static void *result(struct merge_list *entry, unsigned long *size)
+static void *result(struct merge_list *entry, size_t *size)
 {
 	enum object_type type;
 	struct blob *base, *our, *their;
@@ -82,7 +82,7 @@ static void *result(struct merge_list *entry, unsigned long *size)
 			   base, our, their, size);
 }
 
-static void *origin(struct merge_list *entry, unsigned long *size)
+static void *origin(struct merge_list *entry, size_t *size)
 {
 	enum object_type type;
 	while (entry) {
@@ -104,7 +104,7 @@ static int show_outf(void *priv_, mmbuffer_t *mb, int nbuf)
 
 static void show_diff(struct merge_list *entry)
 {
-	unsigned long size;
+	size_t size;
 	mmfile_t src, dst;
 	xpparam_t xpp;
 	xdemitconf_t xecfg;
@@ -314,7 +314,7 @@ static void unresolved(const struct traverse_info *info, struct name_entry n[3])
  * The successful merge rules are the same as for the three-way merge
  * in git-read-tree.
  */
-static int threeway_callback(int n, unsigned long mask, unsigned long dirmask, struct name_entry *entry, struct traverse_info *info)
+static int threeway_callback(int n, size_t mask, size_t dirmask, struct name_entry *entry, struct traverse_info *info)
 {
 	/* Same in both? */
 	if (same_entry(entry+1, entry+2) || both_empty(entry+1, entry+2)) {

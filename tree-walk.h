@@ -77,9 +77,9 @@ int update_tree_entry_gently(struct tree_desc *);
  * size parameters are assumed to be the same as the buffer and size
  * members of `struct tree`.
  */
-void init_tree_desc(struct tree_desc *desc, const void *buf, unsigned long size);
+void init_tree_desc(struct tree_desc *desc, const void *buf, size_t size);
 
-int init_tree_desc_gently(struct tree_desc *desc, const void *buf, unsigned long size);
+int init_tree_desc_gently(struct tree_desc *desc, const void *buf, size_t size);
 
 /*
  * Visit the next entry in a tree. Returns 1 when there are more entries
@@ -100,7 +100,7 @@ void *fill_tree_descriptor(struct repository *r,
 			   const struct object_id *oid);
 
 struct traverse_info;
-typedef int (*traverse_callback_t)(int n, unsigned long mask, unsigned long dirmask, struct name_entry *entry, struct traverse_info *);
+typedef int (*traverse_callback_t)(int n, size_t mask, size_t dirmask, struct name_entry *entry, struct traverse_info *);
 
 /**
  * Traverse `n` number of trees in parallel. The `fn` callback member of
@@ -135,7 +135,7 @@ struct traverse_info {
 	struct pathspec *pathspec;
 
 	/* can be used by callbacks to maintain directory-file conflicts. */
-	unsigned long df_conflicts;
+	size_t df_conflicts;
 
 	/* a callback called for each entry in the tree.
 	 *

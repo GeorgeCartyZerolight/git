@@ -29,7 +29,7 @@ int check_pack_crc(struct packed_git *p, struct pack_window **w_curs,
 	uint32_t data_crc = crc32(0, NULL, 0);
 
 	do {
-		unsigned long avail;
+		size_t avail;
 		void *data = use_pack(p, w_curs, offset, &avail);
 		if (avail > len)
 			avail = len;
@@ -65,7 +65,7 @@ static int verify_packfile(struct repository *r,
 
 	r->hash_algo->init_fn(&ctx);
 	do {
-		unsigned long remaining;
+		size_t remaining;
 		unsigned char *in = use_pack(p, w_curs, offset, &remaining);
 		offset += remaining;
 		if (!pack_sig_ofs)
@@ -102,13 +102,13 @@ static int verify_packfile(struct repository *r,
 		void *data;
 		struct object_id oid;
 		enum object_type type;
-		unsigned long size;
+		size_t size;
 		off_t curpos;
 		int data_valid;
 
 		if (nth_packed_object_id(&oid, p, entries[i].nr) < 0)
 			BUG("unable to get oid of object %lu from %s",
-			    (unsigned long)entries[i].nr, p->pack_name);
+			    (size_t)entries[i].nr, p->pack_name);
 
 		if (p->index_version > 1) {
 			off_t offset = entries[i].offset;

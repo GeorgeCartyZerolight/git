@@ -21,7 +21,7 @@
  /* This is currently duplicated from git-compat-utils.h */
 # ifdef NO_INTPTR_T
  typedef long intptr_t;
- typedef unsigned long uintptr_t;
+ typedef size_t uintptr_t;
 # endif
 #endif
 
