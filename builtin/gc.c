@@ -648,7 +648,7 @@ int cmd_gc(int argc, const char **argv, const char *prefix)
 		hold_lock_file_for_update(&log_lock,
 					  git_path("gc.log"),
 					  LOCK_DIE_ON_ERROR);
-		dup2(get_lock_file_fd(&log_lock), 2);
+		_dup2(get_lock_file_fd(&log_lock), 2);
 		sigchain_push_common(process_log_file_on_signal);
 		atexit(process_log_file_at_exit);
 	}

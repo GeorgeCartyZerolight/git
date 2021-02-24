@@ -131,9 +131,9 @@ void setup_pager(void)
 		return;
 
 	/* original process continues, but writes to the pipe */
-	dup2(pager_process.in, 1);
+	_dup2(pager_process.in, 1);
 	if (isatty(2))
-		dup2(pager_process.in, 2);
+		_dup2(pager_process.in, 2);
 	close(pager_process.in);
 
 	/* this makes sure that the parent terminates after the pager */

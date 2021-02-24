@@ -323,7 +323,7 @@ static void child_die(enum child_errcode err)
 
 static void child_dup2(int fd, int to)
 {
-	if (dup2(fd, to) < 0)
+	if (_dup2(fd, to) < 0)
 		child_die(CHILD_ERR_DUP2);
 }
 
@@ -382,7 +382,7 @@ static void child_err_spew(struct child_process *cmd, struct child_err *cerr)
 			    cmd->argv[0], cmd->dir);
 		break;
 	case CHILD_ERR_DUP2:
-		error_errno("dup2() in child failed");
+		error_errno("_dup2() in child failed");
 		break;
 	case CHILD_ERR_CLOSE:
 		error_errno("close() in child failed");

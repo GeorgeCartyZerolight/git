@@ -385,7 +385,7 @@ int run_column_filter(int colopts, const struct column_options *opts)
 
 	fd_out = dup(1);
 	close(1);
-	dup2(column_process.in, 1);
+	_dup2(column_process.in, 1);
 	close(column_process.in);
 	return 0;
 }
@@ -398,7 +398,7 @@ int stop_column_filter(void)
 	fflush(stdout);
 	close(1);
 	finish_command(&column_process);
-	dup2(fd_out, 1);
+	_dup2(fd_out, 1);
 	close(fd_out);
 	fd_out = -1;
 	return 0;

@@ -471,7 +471,7 @@ static int write_tar_filter_archive(const struct archiver *ar,
 		if (start_command(&filter) < 0)
 			die_errno(_("unable to start '%s' filter"), argv[0]);
 		close(1);
-		if (dup2(filter.in, 1) < 0)
+		if (_dup2(filter.in, 1) < 0)
 			die_errno(_("unable to redirect descriptor"));
 		close(filter.in);
 	}

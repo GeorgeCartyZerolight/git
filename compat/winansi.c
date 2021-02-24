@@ -444,23 +444,6 @@ static DWORD WINAPI console_thread(LPVOID unused)
 	return 0;
 }
 
-static void winansi_exit(void)
-{
-	/* flush all streams */
-	_flushall();
-
-	/* signal console thread to exit */
-	FlushFileBuffers(hwrite);
-	DisconnectNamedPipe(hwrite);
-
-	/* wait for console thread to copy remaining data */
-	WaitForSingleObject(hthread, INFINITE);
-
-	/* cleanup handles... */
-	CloseHandle(hwrite);
-	CloseHandle(hthread);
-}
-
 static void die_lasterr(const char *fmt, ...)
 {
 	va_list params;
@@ -470,16 +453,40 @@ static void die_lasterr(const char *fmt, ...)
 	va_end(params);
 }
 
-#undef dup2
+#undef _dup2
 int winansi_dup2(int oldfd, int newfd)
 {
-	int ret = dup2(oldfd, newfd);
+	int ret = _dup2(oldfd, newfd);
 
 	if (!ret && newfd >= 0 && newfd <= 2)
 		fd_is_interactive[newfd] = oldfd < 0 || oldfd > 2 ?
 			0 : fd_is_interactive[oldfd];
 
 	return ret;
+}
+
+static void winansi_exit(void)
+{
+	/* flush all streams */
+	_flushall();
+
+	/* signal console thread to exit */
+	FlushFileBuffers(hwrite);
+	
+	/* revert consoles to original handles */
+	if (fd_is_interactive[1] & FD_SWAPPED)
+		_dup2(_open_osfhandle((intptr_t)hconsole1, O_BINARY), 1);
+	if (fd_is_interactive[2] & FD_SWAPPED)
+		_dup2(_open_osfhandle((intptr_t)hconsole2, O_BINARY), 2);
+	
+	DisconnectNamedPipe(hwrite);
+
+	/* wait for console thread to copy remaining data */
+	WaitForSingleObject(hthread, INFINITE);
+
+	/* cleanup handles... */
+	CloseHandle(hwrite);
+	CloseHandle(hthread);
 }
 
 static HANDLE duplicate_handle(HANDLE hnd)
@@ -496,7 +503,7 @@ static HANDLE swap_osfhnd(int fd, HANDLE new_handle)
 {
 	/*
 	 * Create a copy of the original handle associated with fd
-	 * because the original will get closed when we dup2().
+	 * because the original will get closed when we _dup2().
 	 */
 	HANDLE handle = (HANDLE)_get_osfhandle(fd);
 	HANDLE duplicate = duplicate_handle(handle);
@@ -507,7 +514,7 @@ static HANDLE swap_osfhnd(int fd, HANDLE new_handle)
 	assert((fd == 1) || (fd == 2));
 
 	/*
-	 * Use stock dup2() to re-bind fd to the new handle.  Note that
+	 * Use stock _dup2() to re-bind fd to the new handle.  Note that
 	 * this will implicitly close(1) and close both fd=1 and the
 	 * originally associated handle.  It will open a new fd=1 and
 	 * call DuplicateHandle() on the handle associated with new_fd.
@@ -515,15 +522,15 @@ static HANDLE swap_osfhnd(int fd, HANDLE new_handle)
 	 * copy of the original.
 	 *
 	 * Note that we need to update the cached console handle to the
-	 * duplicated one because the dup2() call will implicitly close
+	 * duplicated one because the _dup2() call will implicitly close
 	 * the original one.
 	 *
-	 * Note that dup2() when given target := {0,1,2} will also
+	 * Note that _dup2() when given target := {0,1,2} will also
 	 * call SetStdHandle(), so we don't need to worry about that.
 	 */
 	if (console == handle)
 		console = duplicate;
-	dup2(new_fd, fd);
+	_dup2(new_fd, fd);
 
 	/* Close the temp fd.  This explicitly closes "new_handle"
 	 * (because it has been associated with it).

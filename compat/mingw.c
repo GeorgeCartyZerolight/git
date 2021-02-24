@@ -3640,7 +3640,7 @@ static void maybe_redirect_std_handle(const wchar_t *key, DWORD std_id, int fd,
 		} else {
 			int new_fd = _open_osfhandle((intptr_t)handle, O_BINARY);
 			SetStdHandle(std_id, handle);
-			dup2(new_fd, fd);
+			_dup2(new_fd, fd);
 			/* do *not* close the new_fd: that would close stdout */
 		}
 		return;
@@ -3650,7 +3650,7 @@ static void maybe_redirect_std_handle(const wchar_t *key, DWORD std_id, int fd,
 	if (handle != INVALID_HANDLE_VALUE) {
 		int new_fd = _open_osfhandle((intptr_t)handle, O_BINARY);
 		SetStdHandle(std_id, handle);
-		dup2(new_fd, fd);
+		_dup2(new_fd, fd);
 		close(new_fd);
 	}
 }
